@@ -120,4 +120,6 @@ const fetchMoviesHandler = useCallback(async () => {
 # POST 요청 보내기
 >Firebase 이용
 
+![](images/2022-04-30-02-48-04.png)
+
 ![](images/2022-04-30-02-15-03.png)
