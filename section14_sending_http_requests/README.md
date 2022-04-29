@@ -98,5 +98,26 @@ content라는 변수를 만들고 상태에 따라 출력될 대상을 바꾸어
 </section>
 ```
 
+# 요청에 useEffect() 사용하기
+보통의 웹 앱은 버튼을 눌러 렌더링 하지 않는다.
+사이트에 접근할때 자동으로 렌더링 되므로 그렇게 만들어주도록 하자.
+```
+useEffect(() => {
+    fetchMoviesHandler();
+  }, [fetchMoviesHandler]);
+```
+위와 같이 의존성을 추가해준다면 페이지가 재 렌더링 될 때 fetchMoviesHandler 함수의 객체가 바뀌므로 무한루프에 빠지게 된다. 무한루프를 방지하기 위해선 `useCallBack` 훅을 사용해야 한다.
+
+```
+const fetchMoviesHandler = useCallback(async () => {
+    ...
+  },[]);
+```
+
+>`useMemo` 는 특정 결과값을 재사용 할 때 사용하는 반면,`useCallback` 은 특정 함수를 새로 만들지 않고 재사용하고 싶을때 사용합니다.
 
 
+# POST 요청 보내기
+>Firebase 이용
+
+![](images/2022-04-30-02-15-03.png)
