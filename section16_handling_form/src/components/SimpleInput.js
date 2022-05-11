@@ -1,30 +1,49 @@
 import { useState, useEffect } from "react";
+import useInput from "../hooks/useInput";
 
 const SimpleInput = (props) => {
-  const [enteredName, setEnteredName] = useState("");
-  const [nameIsValid, setNameIsValid] = useState(false);
-  const [enteredNameTouched, setEnteredNameTouched] = useState(false);
-  const nameIsInvalid = enteredNameTouched && !nameIsValid;
+  const {
+    value: enteredName,
+    valueIsInvalid: nameIsInvalid,
+    enteredValueTouched: enteredNameTouched,
+    valueChangeHandler: keyStrokeHandler,
+    InputBlurHandler: nameInputBlurHandler,
+    reset: resetName,
+  } = useInput((value) => {
+    return value.trim() === "";
+  });
+  const [enteredEmail, setEnteredEmail] = useState("");
 
-  const keyStrokeHandler = (e) => {
-    setEnteredName(e.target.value);
-  };
+  const [enteredEmailTouched, setEnteredEmailTouched] = useState(false);
+  const [formIsValid, setFormIsValid] = useState(false);
+
+  const nameIsValid = enteredName.trim() !== "";
+  const emailIsValid = enteredEmail.trim() !== "";
+  const emailIsInvalid = enteredEmailTouched && !emailIsValid;
 
   useEffect(() => {
-    if (nameIsValid) {
-      console.log("name is valid");
+    if (emailIsValid && nameIsValid) {
+      setFormIsValid(true);
     }
-  }, [nameIsValid]);
+  }, [emailIsValid, nameIsValid]);
+
+  const emailkeyStrokeHandler = (e) => {
+    setEnteredEmail(e.target.value);
+  };
+
+  const emailInputBlurHandler = (e) => {
+    setEnteredEmailTouched(true);
+  };
 
   const submitHandler = (e) => {
     e.preventDefault();
-    setEnteredNameTouched(true);
-    if (enteredName.trim() === "") {
-      setNameIsValid(false);
+    setEnteredEmailTouched(true);
+    if (!nameIsValid || !emailIsValid) {
       return;
     }
-    setNameIsValid(true);
-    console.log(enteredName);
+    resetName();
+    setEnteredEmail("");
+    setEnteredEmailTouched(false);
   };
   const nameClasses = nameIsInvalid ? "form-control invalid" : "form-control";
   return (
@@ -35,12 +54,21 @@ const SimpleInput = (props) => {
           type='text'
           id='name'
           onChange={keyStrokeHandler}
+          onBlur={nameInputBlurHandler}
           value={enteredName}
         />
+        <label htmlFor='name'>Your Email</label>
+        <input
+          type='email'
+          id='email'
+          onChange={emailkeyStrokeHandler}
+          onBlur={emailInputBlurHandler}
+        />
       </div>
-      {nameIsInvalid && <p style={{ color: "red" }}>name is unvalid.</p>}
+      {nameIsInvalid && <p style={{ color: "red" }}>name is invalid.</p>}
+      {emailIsInvalid && <p style={{ color: "red" }}>email is invalid.</p>}
       <div className='form-actions'>
-        <button>Submit</button>
+        <button disabled={!formIsValid}>Submit</button>
       </div>
     </form>
   );

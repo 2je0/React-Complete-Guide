@@ -58,3 +58,58 @@ const nameClasses = nameIsInvalid ? "form-control invalid" : "form-control";
   nameIsInvalid && <p style={{ color: "red" }}>name is unvalid.</p>;
 }
 ```
+
+#
+
+## 더 나아가기
+
+더 해야 할것들 :
+
+- 입력창을 건드렸다가 밖으로 빠져나왔을 때 유효성검증을 하고싶음
+- 알맞은 타이핑을 했을 때에도 즉각적으로 유효성검증을 하고싶음
+- 하지만 입력창을 건드리기만 해도 Invalid를 내뿜긴 싫음
+  코드를 줄이기 위해서 상태에 종속된 상태를 정의
+  ```javascript
+  const nameIsValid = enteredName.trim() !== "";
+  ```
+  onBlur 함수도 정의
+  ```javascript
+  const nameInputBlurHandler = (e) => {
+    setEnteredNameTouched(true);
+  };
+  ```
+  submitHandler 수정
+
+```javascript
+const submitHandler = (e) => {
+  e.preventDefault();
+  setEnteredNameTouched(true);
+  if (!nameIsValid) {
+    return;
+  }
+  console.log("submit");
+  setEnteredName("");
+  setEnteredNameTouched(false);
+};
+```
+
+#
+
+## 전체 양식 유효성 관리하기
+
+폼이 한개 이상인 경우에 전부 유효해야만 폼 전체가 유효하다고 할 수 있다.
+위와 같은 상황을 만들기 위해 `formIsValid` 상태를 하나 더만든다. (변수로 선언해도 됨)
+
+```javascript
+const [formIsValid, setFormIsValid] = useState(false);
+(...)
+  useEffect(() => {
+    if (emailIsValid && nameIsValid) {
+      setFormIsValid(true);
+    }
+  }, [emailIsValid, nameIsValid]);
+(...)
+<button disabled={!formIsValid}>Submit</button>
+```
+
+## 두개 이상의 입력창 - 입력 훅 추가하기
