@@ -51,6 +51,19 @@ const Cart = (props) => {
       )}
     </div>
   );
+  const submitHandler = (userData) => {
+    fetch(
+      "https://meals-project-72c26-default-rtdb.firebaseio.com/order.json",
+      {
+        method: "POST",
+        body: JSON.stringify({
+          user: userData,
+          order: cartCtx.items,
+        }),
+      }
+    );
+    console.log(userData);
+  };
   return (
     <Modal onClose={props.onClose}>
       {cartItems}
@@ -58,7 +71,11 @@ const Cart = (props) => {
         <span>Total Amount</span>
         <span>{totalAmount}</span>
       </div>
-      {orderClicked ? <Checkout onCancel={props.onClose} /> : modalAction}
+      {orderClicked ? (
+        <Checkout onSubmit={submitHandler} onCancel={props.onClose} />
+      ) : (
+        modalAction
+      )}
     </Modal>
   );
 };

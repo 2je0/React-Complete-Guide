@@ -135,3 +135,77 @@ const CheckoutHandler = (event) =>{
   return (
     <form onSubmit={CheckoutHandler}>
 ```
+
+## 양식 값 읽기
+
+![](images/2022-06-06-02-38-56.png)
+
+## 데이터 제출 및 전송하기
+
+1. 입력된 데이터 유효성 검사하기
+
+   - 유효성 검사하는 helper function 만들기
+   -
+
+   ```javascript
+   const isEmpty = (input) => input.trim().length === 0;
+   const isFiveChar = (input) => input.trim().length === 5;
+
+   const enteredNameIsValid = !isEmpty(enteredName);
+   const enteredStreetIsValid = !isEmpty(enteredStreet);
+   const enteredPostalIsValid = isFiveChar(enteredPostal);
+   const enteredCityIsValid = !isEmpty(enteredCity);
+   ```
+
+2. 전체 form이 유효하지 않은 경우 return
+   ```javascript
+   if (!formIsValid) return;
+   ```
+3. formvalidity state 만들어주기 & setvalidity
+
+```javascript
+setFormInputValidity({
+  name: enteredNameIsValid,
+  street: enteredStreetIsValid,
+  postal: enteredPostalIsValid,
+  city: enteredCityIsValid,
+});
+```
+
+4. 각자 inputvalid를 이용해서 경고문 표현하기
+
+```javascript
+const nameControlClasses = `${classes.control} ${
+  formInputValidity ? "" : classes.invalid
+}`;
+
+{
+  !formInputValidity.name && <p>please enter your name.</p>;
+}
+```
+
+5. 경고문 클래서 동적 지정
+6. userData 부모 컴포넌트로 보내기
+
+```javascript
+props.onSubmit({
+  name: enteredName,
+  street: enteredStreet,
+  postal: enteredPostal,
+  city: enteredCity,
+});
+```
+
+7. 받은 userData와 CartItem을 POST로 서버에 보내기
+
+```javascript
+const submitHandler = (userData) => {
+  fetch("https://meals-project-72c26-default-rtdb.firebaseio.com/order.json", {
+    method: "POST",
+    body: JSON.stringify({
+      user: userData,
+      order: cartCtx.items,
+    }),
+  });
+};
+```
