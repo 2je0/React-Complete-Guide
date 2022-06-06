@@ -62,7 +62,6 @@ const Cart = (props) => {
         }),
       }
     );
-    console.log(userData);
   };
   return (
     <Modal onClose={props.onClose}>
