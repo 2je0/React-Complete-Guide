@@ -96,3 +96,111 @@ const counterReducer = (state = { counter: 0 }, action) => {
   return state;
 };
 ```
+
+#
+
+## 새 프로젝트 시작하기
+
+1.  `npm install redux`
+2.  `npm install react-redux`
+3.  src에 `store/index.js` 만들기
+4.  index.js
+
+    ```javascript
+    import { createStore } from "redux";
+    const counterReducer = (state = { counter: 0 }, action) => {
+      if (action.type === "increment") {
+        return {
+          counter: state.counter + 1,
+        };
+      }
+      if (action.type === "decrement") {
+        return {
+          counter: state.counter - 1,
+        };
+      }
+      return state;
+    };
+    const store = createStore(counterReducer);
+    export default store;
+    ```
+
+    주의!!! state 초기값을 지정해 주어야함
+
+    ```javascript
+    const counterReducer = (state, action);
+    ```
+
+5.  App 에 Provider 설정
+
+    1. import
+
+    ```javascript
+    import store from "./store/index";
+    import { Provider } from "react-redux";
+    ```
+
+    2.  wrap
+
+    ```javascript
+    <Provider store={store}>
+      <App />
+    </Provider>
+    ```
+
+6.  useSelector 훅
+    `import { useSelector } from "react-redux";`
+
+    ```javascript
+    const counter = useSelector((state) => state.counter);
+    ```
+
+    `counter` 변수를 사용할 수 있음
+
+7.  dispatch 함수 사용하기
+    ```javascript
+    import { useSelector, useDispatch } from "react-redux";
+    const dispatch = useDispatch();
+    const incrementHandler = () => {
+      // store.dispatch({ type: "increment" });
+      dispatch({ type: "increment" });
+    };
+    ```
+8.  n 증가시키기
+    reducer 함수를 추가해준다.
+
+    ```javascript
+    if (action.type === "increase") {
+      return {
+        counter: state.counter + action.value,
+      };
+    }
+    ```
+
+    ```javascript
+    const increase5Handler = () => {
+      dispatch({
+        type: "increase",
+        value: parseInt(numberInputRef.current.value),
+      });
+    };
+    ```
+
+9.  toggle도 redux로 작업하기
+    ```javascript
+    const toggleCounterHandler = () => {
+      // if (toggle) setToggle(false);
+      // else setToggle(true);
+      dispatch({ type: "togglecontrol" });
+    };
+    ```
+    ```javascript
+    if (action.type === "togglecontrol") {
+      return {
+        ...state,
+        toggle: !state.toggle,
+      };
+    }
+    ```
+
+**_절대 기존 state를 변경하면 안된다. 새 객체를 반환해야 한다._**
