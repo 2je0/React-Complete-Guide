@@ -209,3 +209,13 @@ const submitHandler = (userData) => {
   });
 };
 ```
+
+#
+
+## 더 나은 사용자 피드백 추가하기
+
+1. submitting 중인지 판단하기
+2. did submit 판단하기
+3. 상황 분류해서 표시하기
+4. Cart 비우기
+5.
