@@ -1,7 +1,9 @@
 import React, { useRef, useState } from "react";
 import classes from "./Checkout.module.css";
+
 const isEmpty = (input) => input.trim().length === 0;
 const isFiveChar = (input) => input.trim().length === 5;
+
 const Checkout = (props) => {
   const nameInputRef = useRef();
   const streetInputRef = useRef();

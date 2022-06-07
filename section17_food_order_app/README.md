@@ -216,6 +216,76 @@ const submitHandler = (userData) => {
 
 1. submitting 중인지 판단하기
 2. did submit 판단하기
+   ```javascript
+   const [isSubmitting, setIsSubmitting] = useState(false);
+   const [didSubmit, setDidSubmit] = useState(false);
+   ```
 3. 상황 분류해서 표시하기
-4. Cart 비우기
-5.
+
+   ```javascript
+   <Modal onClose={props.onClose}>
+     {didSubmit
+       ? didSubmitModalContent
+       : isSubmitting
+       ? isSubmittingModalContent
+       : cartModalItem}
+   </Modal>
+   ```
+
+4. 동기 처리 해주기
+
+   ```javascript
+   const submitHandler = async (userData) => {
+     setIsSubmitting(true);
+     await fetch(
+       "https://meals-project-72c26-default-rtdb.firebaseio.com/order.json",
+       {
+         method: "POST",
+         body: JSON.stringify({
+           user: userData,
+           order: cartCtx.items,
+         }),
+       }
+     );
+     setIsSubmitting(false);
+     setDidSubmit(true);
+   };
+   ```
+
+5. Cart 비우기
+   store/cart-context.js 이동
+
+   ```javascript
+   if (action.type === "CLEAR") {
+     return defaultCartState;
+   }
+   ```
+
+   ```javascript
+   const CartContext = React.createContext({
+     items: [],
+     totalAmount: 0,
+     addItem: (item) => {},
+     removeItem: (id) => {},
+     clearItem: () => {},
+   });
+   ```
+
+   ```javascript
+   if (action.type === "CLEAR") {
+     return defaultCartState;
+   }
+   ```
+
+   ```javascript
+   const clearItemFormCartHandler = () => {
+     dispatchCartAction({ type: "CLEAR" });
+   };
+   ```
+
+6. Cart.js에 추가해주기
+   SubmitHandler에 추가해주기
+
+   ```javascript
+   cartCtx.clearItem();
+   ```
