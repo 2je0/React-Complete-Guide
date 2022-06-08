@@ -204,3 +204,172 @@ const counterReducer = (state = { counter: 0 }, action) => {
     ```
 
 **_절대 기존 state를 변경하면 안된다. 새 객체를 반환해야 한다._**
+
+## 리덕스 도전과제 및 리덕스 툴킷
+
+### 기존 리덕스의 문제점
+
+- 식별자 (action.type) 오타가 나면 안됨
+- 앱이 커지면 식별자가 겹칠 수도 있음
+- redux 파일이 너무 커짐
+- 반환해야하는 객체가 많아지면 복붙을 많이 해야됨
+
+## 리덕스 툴킷 사용하기
+
+`npm install @reduxjs/toolkit`
+`package.json` 에서 redux 삭제 (이미 툴킷에 있음)
+
+1. `import { createSlice } from "@reduxjs/toolkit";`
+2. `const initialState = { counter: 0, toggle: true };`
+3. ```javascript
+   createSlice({
+     name: "counter",
+     initialState,
+     reducers: {
+       increment() {},
+       decrement() {},
+       increase() {},
+       toggleCounter() {},
+     },
+   });
+   ```
+4. `configureStore` 여러개의 reducer를 하나의 reducer로 합칠 수 있음.
+
+5. state 연결하기
+   `import { createSlice, configureStore } from "@reduxjs/toolkit";`
+   ```javascript
+   const counterSlice = createSlice({
+     name: "counter",
+     initialState,
+     reducers: {
+       increment(state) {
+         state.counter++;
+       },
+       decrement(state) {
+         state.counter--;
+       },
+       increase(state, action) {
+         state.counter = state.counter + action.amount;
+       },
+       toggleCounter(state) {
+         state.toggle = !state.toggle;
+       },
+     },
+   });
+   ```
+   **단일 sliced의 state를 연결해야 하는경우**
+   ```javascript
+   const store = configureStore({
+     reducer: counterSlice.reducer,
+   });
+   ```
+   **복합 sliced의 state를 연결해야 하는경우**
+   ```javascript
+   const store = configureStore({
+     reducer: { counter: counterSlice.reducer },
+   });
+   ```
+
+## 리덕스 툴킷으로 마이그레이션
+
+```javascript
+export const counterAction = counterSlice.actions;
+```
+
+위의 코드를 통해서 액션 객체를 생성해낼 수 있다.
+따라서 필요한곳에서 `counterAction`을 `import` 하면 액션을 취할 수 있다.
+
+1. `counter.js` 에서 `import { counterAction } from "../store";`
+2. 다음과 같은 식으로 dispatch에 action 객체를 전달한다.
+   ```javascript
+   const incrementHandler = () => {
+     dispatch(counterAction.increment());
+   };
+   ```
+3. 주의사항 -> 추가 인자를 전달하려고 할 때는 인자로서 넣어주지만 `{type:"UNIQUE_TYPE_IDENTIFIER",payload: ?}` 처럼 `payload`를 이용해야함
+   ```javascript
+   increase(state, action) {
+      state.counter = state.counter + action.payload;
+    },
+   ```
+
+## 다중 슬라이스 작업하기
+
+![](images/2022-06-08-19-51-14.png)
+
+이전에 봤듯 여러개의 슬라이스를 만들려면 reducers 에서 reducer map을 구축하면 된다.
+
+```javascript
+const store = configureStore({
+  reducer: { counter: counterSlice.reducer, auth: authSlice.reducer },
+});
+```
+
+그리고 사용하고 싶은 곳에 가서 `useSelector` 와 `useDispatch`를 적절히 사용한다.
+
+1. useSelector
+2. useDispatch
+   - `import { useSelector, useDispatch } from "react-redux";`
+   - `import { authAction } from "../store";`
+   - ```javascript
+     const dispatch = useDispatch();
+     const auth = useSelector((state) => state.auth.auth);
+     const loginHandler = (event) => {
+       event.preventDefault();
+       dispatch(authAction.login());
+     };
+     ```
+3. 주의할점
+   ```javascript
+   const store = configureStore({
+     reducer: { counter: counterSlice.reducer, auth: authSlice.reducer },
+   });
+   ```
+   위 부분에서
+   ```javascript
+   const auth = useSelector((state) => state.auth.auth);
+   ```
+   state.auth 까지는 여러 슬라이스 중 `auth` 에 들어간것이고 뒤의 `.auth`가 state에 접근한 것
+
+## 여러 파일로 분할하기
+
+1. `store/auth-slice`와 `store/counter-slice`로 분할한다.
+2. 각각의 `initialState`와 `Slice`를 각각의 파일로 옮긴다.
+3. 각 파일에서는 `Slice.reducer`를 export default로 내보낸다.
+4. `Slice.action` 내보낸다.
+5. index.js 에서는 이들을 합쳐준다.
+
+```javascript
+//auth-slice.js
+import { createSlice } from "@reduxjs/toolkit";
+
+const authinitialState = { auth: false };
+const authSlice = createSlice({
+  name: "auth",
+  initialState: authinitialState,
+  reducers: {
+    login(state) {
+      console.log("login");
+      state.auth = true;
+    },
+    logout(state) {
+      state.auth = false;
+    },
+  },
+});
+export const authAction = authSlice.actions;
+export default authSlice.reducer;
+```
+
+```javascript
+//index.js
+import { configureStore } from "@reduxjs/toolkit";
+
+import counterReducer from "./counter-slice";
+import authReducer from "./auth-slice";
+const store = configureStore({
+  reducer: { counter: counterReducer, auth: authReducer },
+});
+
+export default store;
+```
