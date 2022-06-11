@@ -5,7 +5,6 @@ import QuoteItem from "./QuoteItem";
 import classes from "./QuoteList.module.css";
 
 const QuoteList = (props) => {
-  const [isSortingAscending, setIsSortingAscending] = useState("asc");
   const history = useHistory();
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
