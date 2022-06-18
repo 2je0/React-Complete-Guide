@@ -14,14 +14,13 @@ import NoQuotesFound from "../quotes/NoQuotesFound";
 import LoadingSpinner from "../UI/LoadingSpinner";
 
 const Details = () => {
-  const param = useParams();
-
   const {
     sendRequest,
     status,
     data: quote,
     error,
   } = useHttp(getSingleQuote, true);
+  const param = useParams();
   const { quoteId } = param;
 
   useEffect(() => {
@@ -45,14 +44,14 @@ const Details = () => {
       <HighlightedQuote text={quote.text} author={quote.author} />
 
       <Switch>
-        <Route path={`${match.url}`} exact>
+        <Route path={match.path} exact>
           <div className='centered'>
             <Link className='btn--flat' to={`${match.url}/comments`}>
               comments
             </Link>
           </div>
         </Route>
-        <Route path={`${match.url}/comments`}>
+        <Route path={`${match.path}/comments`}>
           <Comments />
         </Route>
       </Switch>

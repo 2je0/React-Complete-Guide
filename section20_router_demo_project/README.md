@@ -254,5 +254,105 @@ useEffect(() => {
 }, [sendRequest, quoteId]);
 ```
 
-v5 v6 다른점
-https://kyung-a.tistory.com/36
+## 중간에서 param 받기
+
+`path`는 param을 이용할 수 있고 url은 아니다.
+자식 컴포넌트에서 params를 이용하려면 path를 써야된다.
+
+```js
+const match = useRouteMatch();
+console.log(match);
+```
+
+![](images/2022-06-19-01-11-38.png)
+
+## 댓글 달기
+
+```js
+const submitFormHandler = (event) => {
+  event.preventDefault();
+  const comment = {
+    quoteId,
+    commentData: { text: commentTextRef.current.value },
+  };
+  sendRequest(comment);
+  // optional: Could validate here
+
+  // send comment to server
+};
+if (status === "pending") {
+  return (
+    <div className='centered'>
+      <LoadingSpinner />
+    </div>
+  );
+}
+```
+
+## 댓글 바로 업데이트 하기
+
+Comment의 자식 컴포넌트중에 NewCommentForm가 있다.
+댓글의 정보를 상위 컴포넌트로 올린 후에 다시 렌더링되게 하자
+
+```js
+<NewCommentForm onClickAddComment={addCommentHandler} />
+```
+
+여기서 클릭될 때 바로 onClickAddComment를 보내면 안된다.
+보내자마자 렌더링을 시도하면 똑같이 보이기 때문이다.
+sendRequest를 하고 status가 변경되면 그때 렌더링 하도록 하자
+
+```js
+//NewCommentForm
+const submitFormHandler = (event) => {
+  event.preventDefault();
+  const comment = {
+    quoteId,
+    commentData: { text: commentTextRef.current.value },
+  };
+  sendRequest(comment);
+  props.onClickAddComment();
+  // optional: Could validate here
+
+  // send comment to server
+};
+```
+
+```js
+//Comments.js
+const addCommentHandler = useCallback(() => {
+  sendRequest(quoteId);
+}, [sendRequest, quoteId]);
+```
+
+```js
+//NewCommentForm.js
+useEffect(() => {
+  if (status === "completed" && !error) {
+    onClickAddComment();
+  }
+}, [status, error, onClickAddComment]);
+```
+
+## [v5 v6 다른점](https://kyung-a.tistory.com/36)
+
+- Switch가 Routes로 바뀌었다. 또 element라는 props를 추가해서 렌더링 할 컴포넌트를 정의한다.
+  ![](images/2022-06-19-03-23-30.png)
+- exact가 없어지고 (모든 페이지에 exact가 적용되었다고 생각), 아래 복합 라우팅을 쓰는 경우 \*로 전부 렌더링되게 해준다.
+  ![](images/2022-06-19-03-25-19.png)
+- NavLink에서 활성화 되었을 때 스타일링 하는 방법이 바뀌었다.
+  ![](images/2022-06-19-03-25-47.png)
+- Redirect 하는 방법이 바뀌었다. Redirect가 아니라 Navigate로 바뀌었다.
+  ![](images/2022-06-19-03-26-39.png)![](images/2022-06-19-03-26-50.png)
+- 중첩 라우팅 방법이 바뀌었다. (1. 단일 라우팅이어도 Routes로 감싸주어야함 2. 풀url을 다쓰지 않아도 됨)
+  ![](images/2022-06-19-03-27-47.png)![](images/2022-06-19-03-28-00.png)![](images/2022-06-19-03-28-09.png)
+- 다음과 같이 중첩 라우팅을 사용할 수 있다.
+  ![](images/2022-06-19-03-28-56.png)
+  - 어디에 렌더링 할 지는 Outlet으로 알려준다.
+    ![](images/2022-06-19-03-29-25.png)
+- useHistory가 없어지고 useNavigate로 바뀌었다.
+  ![](images/2022-06-19-03-29-49.png) ![](images/2022-06-19-03-30-06.png)
+  - 이전 페이지로 갈때 인자만 -1, -2로 해주면 된다.
+    ![](images/2022-06-19-03-30-35.png)
+- Prompt 가 없어졌다. 이를 해결하려면 다른 방법을 찾아야한다.
+  ![](images/2022-06-19-03-31-05.png)
