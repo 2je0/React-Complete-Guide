@@ -393,4 +393,72 @@ const loginHandler = (token, expireTime) => {
 };
 ```
 
-2.
+2. 로그인 할 때, 토큰 만료시간을 local에 저장해주기
+
+```js
+const loginHandler = (token, expireTime) => {
+  setToken(token);
+  localStorage.setItem("token", token);
+  localStorage.setItem("expireTime", expireTime);
+  const remainingTime = calculateRemainingTime(expireTime);
+
+  logoutTimer = setTimeout(logoutHandler, remainingTime);
+};
+```
+
+3. 받은 토큰의 유효기간이 남아있다면 그 토큰을 가져오게 하는 함수 만들기
+   이 함수는 토큰 만료 시간이 얼마남지 않았다면 null을 반환하여 새로운 토큰을 발급받도록 한다.
+   그게 아니라면 남아있는 토큰을 이용하여 로그인 한다.
+
+```js
+const retrieveStoredToken = () => {
+  const expireTime = localStorage.getItem("expireTime");
+  const storedToken = localStorage.getItem("token");
+  const remainingTime = calculateRemainingTime(expireTime);
+  if (remainingTime <= 60000) {
+    localStorage.removeItem("token");
+    localStorage.removeItem("expireTime");
+    return null;
+  }
+  return { token: storedToken, duration: remainingTime };
+};
+```
+
+4. initial 토큰을 위에 만든 함수에서 가지고 온다.
+
+```js
+export const AuthContextProvider = (props) => {
+  const retrieveToken = retrieveStoredToken();
+  let initalToken;
+  if (retrieveToken) {
+    initalToken = retrieveToken.token;
+    console.log(retrieveToken.duration);
+  }
+  const [token, setToken] = useState(initalToken);
+  const isLoggedIn = !!token;
+  //...
+};
+```
+
+5. 반환받은 duration을 이용해서 일정시간 이후에 로그아웃되도록 한다.
+   주의할점은 logoutTimer를 logout할때 초기화 해주어야하므로 변수 지정을 해준다.
+
+```js
+useEffect(() => {
+  if (retrieveToken) {
+    logoutTimer = setTimeout(logoutHandler, retrieveToken.duration);
+  }
+}, [logoutHandler, retrieveToken]);
+```
+
+6. useEffect의 dependency를 logoutHandler로 가져갔으므로 useCallback으로 감싸준다.
+   그리고 로그아웃시에 두 localstorage를 모두 지워준다.
+
+```js
+const logoutHandler = useCallback(() => {
+  setToken(null);
+  localStorage.removeItem("token");
+  localStorage.removeItem("expireTime");
+  if (logoutTimer) clearTimeout(logoutTimer);
+}, []);
+```
