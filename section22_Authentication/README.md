@@ -337,3 +337,60 @@ export const AuthContextProvider = (props) => {
 ```
 
 ## 자동으로 로그아웃되게 만들기
+
+1. 토큰 유지 시간 + 현재 시간으로 토큰 만료시간을 계산해준다.
+
+```js
+.then((data) => {
+        const expireTime = new Date(
+          new Date().getTime() + +data.expiresIn * 1000
+        );
+        AuthCtx.login(data.idToken, expireTime);
+        history.replace("/");
+      })
+```
+
+2. 토큰 만료 시간을 login function에 전달해주고 남은 토큰 시간을 계산해주는 함수를 만든다.
+
+```js
+const calculateRemainingTime = (expireTime) => {
+  const currentTime = new Date().getTime();
+  const adjexpireTime = new Date(expireTime).getTime();
+  return adjexpireTime - currentTime;
+};
+```
+
+3. 남은 토큰 시간 이후 로그아웃 함수를 호출한다.
+
+```js
+const loginHandler = (token, expireTime) => {
+  setToken(token);
+  localStorage.setItem("token", token);
+  const remainingTime = calculateRemainingTime(expireTime);
+
+  setTimeout(logoutHandler, remainingTime);
+};
+```
+
+## 자동으로 로그아웃 로컬스토리지 이용
+
+1. 로그아웃을 한다면 setTimeout을 초기화 해준다. (단, logoutTimer가 null이 아닐 때)
+
+```js
+let logoutTimer;
+const logoutHandler = () => {
+  setToken(null);
+  localStorage.removeItem("token");
+  if (logoutTimer) clearTimeout(logoutTimer);
+};
+
+const loginHandler = (token, expireTime) => {
+  setToken(token);
+  localStorage.setItem("token", token);
+  const remainingTime = calculateRemainingTime(expireTime);
+
+  logoutTimer = setTimeout(logoutHandler, remainingTime);
+};
+```
+
+2.
