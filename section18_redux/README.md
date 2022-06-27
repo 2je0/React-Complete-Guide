@@ -1,3 +1,7 @@
+
+
+[TOC]
+
 # Redux
 
 ## State에 대한 관점
@@ -22,16 +26,16 @@ React Context가 있는데 Redux를 사용하는 두가지 이유
 
 1. Complex Setup / Management
    - 중첩된 Provider를 사용해야함
-     ![](images/2022-06-07-22-45-00.png)
+     <img src="images/2022-06-07-22-45-00.png" style="zoom: 33%;" />
    - 중첩 Provider를 사용하지 않으려면 하나의 Context 안에 여러 기능을 수행해야 함
-     ![](images/2022-06-07-22-44-43.png)
+     <img src="images/2022-06-07-22-44-43.png" style="zoom:33%;" />
 2. Performance
    - 고빈도의 상태 업데이트를 Context에서 이용하면 성능이 저하될 수 있음
      ![](images/2022-06-07-22-45-14.png)
 
 ## Redux 작동방식
 
-![](images/2022-06-07-23-33-59.png)
+<img src="images/2022-06-07-23-33-59.png" style="zoom: 25%;" />
 
 ## Redux 설치하기
 
