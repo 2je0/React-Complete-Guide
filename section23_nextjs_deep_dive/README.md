@@ -305,3 +305,34 @@ const index = (props) => {
   );
 };
 ```
+
+## 배포하기
+
+https://vercel.com/
+github에 올려놓으면 배포할 수 있다.
+`npm run build` 해야한다.
+
+getStaticPaths를 새로 생성한 경우 빌드하지 않으면 그 url에 접속할 수없는데 이럴 때 `fallback: 'blocking'` 으로 설정하면 된다.
+true와 blocking의 차이는 다음과 같다.
+true로 설정하면 빈 페이지가 즉시 반환되고 동적으로 생성한 컨텐츠를 풀다운한다. 따라서 데이터가 없는 경우 처리를 해주어야한다.  
+blocking으로 설정 할 경우 페이지가 미리 생성될 때까지 사용자는 아무것도 볼 수 없고 나중에 완성된 페이지가 제공된다.
+
+```js
+export const getStaticPaths = async () => {
+  const client = await MongoClient.connect(
+    "mongodb+srv://leejeyoung:mF3Xz3msybcvSO1n@cluster0.bt1mh.mongodb.net/meetups?retryWrites=true&w=majority"
+  );
+  const db = client.db();
+
+  const meetupsCollection = db.collection("meetups");
+  const meetups = await meetupsCollection.find({}, { _id: 1 }).toArray();
+  client.close();
+
+  return {
+    fallback: "blocking",
+    paths: meetups.map((ele) => {
+      return { params: { meetupId: ele._id.toString() } };
+    }),
+  };
+};
+```
