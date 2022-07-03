@@ -209,3 +209,28 @@ export const getStaticProps = async () => {
   };
 };
 ```
+
+## 페이지 준비하기
+
+특정 id 값을 받아서 페이지에 접근 가능하도록 하려면 getStaticPaths를 수정해야한다.  
+`find({},{_id:1})` 의 첫번째 인자는 필터링 기준이고, 두번째 인자는 id값만 가져온다는 뜻이다.
+
+```js
+export const getStaticPaths = async () => {
+  const client = await MongoClient.connect(
+    "mongodb+srv://leejeyoung:mF3Xz3msybcvSO1n@cluster0.bt1mh.mongodb.net/meetups?retryWrites=true&w=majority"
+  );
+  const db = client.db();
+
+  const meetupsCollection = db.collection("meetups");
+  const meetups = await meetupsCollection.find({}, { _id: 1 }).toArray();
+  client.close();
+
+  return {
+    fallback: false,
+    paths: meetups.map((ele) => {
+      return { params: { meetupId: ele._id.toString() } };
+    }),
+  };
+};
+```
