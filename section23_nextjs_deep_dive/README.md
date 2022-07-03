@@ -175,3 +175,37 @@ async function handler(req, res) {
 
 export default handler;
 ```
+
+## 데이터베이스에서 데이터 가져오기
+
+모든 meetups를 표시하는 페이지에서 가져오기 입니다.  
+주의 : id 필드가 객체로 되어있어서 바꿔주어야함
+
+```js
+export const getStaticProps = async () => {
+  //fetching data
+  const client = await MongoClient.connect(
+    "mongodb+srv://leejeyoung:mF3Xz3msybcvSO1n@cluster0.bt1mh.mongodb.net/meetups?retryWrites=true&w=majority"
+  );
+  const db = client.db();
+
+  const meetupsCollection = db.collection("meetups");
+  const meetups = await meetupsCollection.find().toArray();
+  const adjMeetups = meetups.map((ele) => {
+    return {
+      title: ele.title,
+      image: ele.image,
+      address: ele.address,
+      description: ele.description,
+      id: ele._id.toString(),
+    };
+  });
+  client.close();
+  // console.log(adjMeetups);
+  return {
+    props: {
+      meetups: adjMeetups,
+    },
+  };
+};
+```
