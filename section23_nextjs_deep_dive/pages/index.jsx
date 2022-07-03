@@ -1,5 +1,7 @@
 import MeetupList from "../components/meetups/MeetupList";
 import { MongoClient } from "mongodb";
+import { Fragment } from "react";
+import Head from "next/head";
 const DUMMY_MEETUP = [
   {
     id: "m1",
@@ -10,7 +12,15 @@ const DUMMY_MEETUP = [
   },
 ];
 const HomePage = (props) => {
-  return <MeetupList meetups={props.meetups} />;
+  return (
+    <Fragment>
+      <Head>
+        <title>React Meetups</title>
+        <meta name='desciption' content='react meetup app' />
+      </Head>
+      <MeetupList meetups={props.meetups} />
+    </Fragment>
+  );
 };
 
 export const getStaticProps = async () => {

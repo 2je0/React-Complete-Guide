@@ -234,3 +234,74 @@ export const getStaticPaths = async () => {
   };
 };
 ```
+
+## 세부 페이지 조회
+
+특정 페이지의 정보를 나타나게 하기 위해서 getStaticProps를 수정해준다.  
+id는 object로 만들어서 넣어준다.
+
+```js
+export const getStaticProps = async (context) => {
+  //fetching data
+  const meetupId = context.params.meetupId;
+  const client = await MongoClient.connect(
+    "mongodb+srv://leejeyoung:mF3Xz3msybcvSO1n@cluster0.bt1mh.mongodb.net/meetups?retryWrites=true&w=majority"
+  );
+  const db = client.db();
+
+  const meetupsCollection = db.collection("meetups");
+  const meetup = await meetupsCollection.findOne({ _id: ObjectId(meetupId) });
+  client.close();
+  return {
+    props: {
+      meetups: {
+        id: meetupId,
+        title: meetup.title,
+        image: meetup.image,
+        address: meetup.address,
+        discription: meetup.description,
+      },
+    },
+  };
+};
+```
+
+## 메타 데이터 추가하기
+
+Head 를 추가하여 메타데이터를 설정할 수 있다.
+
+```js
+import Head from "next/head";
+const HomePage = (props) => {
+  return (
+    <Fragment>
+      <Head>
+        <title>React Meetups</title>
+        <meta name='desciption' content='react meetup app' />
+      </Head>
+      <MeetupList meetups={props.meetups} />
+    </Fragment>
+  );
+};
+```
+
+다음처럼 동적으로 설정 할 수도 있다.
+
+```js
+const index = (props) => {
+  return (
+    <Fragment>
+      <Head>
+        <title>{props.meetups.title}</title>
+        <meta name='description' content={props.meetups.description} />
+      </Head>
+      <MeetupDetails
+        img={props.meetups.image}
+        title={props.meetups.title}
+        address={props.meetups.address}
+        description={props.meetups.description}
+      />
+    </Fragment>
+  );
+};
+```
