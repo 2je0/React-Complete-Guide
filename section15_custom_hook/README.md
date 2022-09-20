@@ -7,7 +7,7 @@ hooks 폴더 안에 `use`로 시작하는 컴포넌트를 만들자
 ForwardCounter 컴포넌트와 BackwardCounter 컴포넌트는 매우 닮아있다.
 재사용하기 위해 커스텀 훅을 사용한다.
 
-```
+```js
 const ForwardCounter = () => {
   const [counter, setCounter] = useState(0);
 
@@ -23,7 +23,7 @@ const ForwardCounter = () => {
 };
 ```
 
-```
+```js
 const BackwardCounter = () => {
   const [counter, setCounter] = useState(0);
 
@@ -45,7 +45,7 @@ const BackwardCounter = () => {
 
 default value 설정해주기
 
-```
+```js
     useEffect(() => {
         const interval = setInterval(() => {
             if (forward)
@@ -64,14 +64,14 @@ useEffect 내부를 위와 같이 수정해준후, forward를 dependency로 추�
 그리고 원래 컴포넌트에서는 counter 변수를 이용하므로 counter를 반환해주도록 한다.
 다음과 같이 컴포넌트를 간략하게 만들 수 있다.
 
-```
+```js
 const ForwardCounter = () => {
   const counter = useCounter(true);
   return <Card>{counter}</Card>;
 };
 ```
 
-```
+```js
 const BackwardCounter = () => {
   const counter = useCounter(false);
   return <Card>{counter}</Card>;
